@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Galaxy Embeddings Explorer</title>
+        <link rel="stylesheet" href="./css/main.css" type="text/css" media="screen" title="no title" charset="utf-8">
+    </head>
+    <body>
+        <div id="graph"></div>
+        <img id="preview" title="Click to view in navigator!"/>
+        <script type="text/javascript" src="./js/plotly.min.js"></script>
+        <script type="text/javascript" src="./data/index.js"></script>
+        <script charset="utf-8">
+            const container = document.getElementById('graph');
+            const img = document.getElementById('preview');
+            Object.assign(PlotData.redshift.layout, getLayout(container));
+            Plotly.newPlot(container, PlotData.redshift);
+            container.on('plotly_click', data => {
+                const [point] = data.points;
+                const [ra, dec] = DataLocations[point.pointNumber];
+                const url = getImageURL(ra, dec, 300, 300);
+                img.setAttribute('style', 'display:inline');
+                img.setAttribute('src', url);
+                img.onclick = () => window.open(getNaviURL(ra, dec), '_blank');
+            });
+
+            function getImageURL(ra, dec, w, h, scale=0.2) {
+                return `https://skyserver.sdss.org/dr14/SkyServerWS/ImgCutout/getjpeg?ra=${ra}&dec=${dec}&width=${w}&height=${h}&scale=${scale}`;
+            }
+
+            function getNaviURL(ra, dec) {
+                return `http://skyserver.sdss.org/dr14/en/tools/chart/navi.aspx?ra=${ra}&dec=${dec}&scale=0.2&width=120&height=120`;
+            }
+
+            function getLayout(element) {
+                return {
+                    width: element.getBoundingClientRect().width,
+                    height: element.getBoundingClientRect().height,
+                };
+            }
+        </script>
+    </body>
+</html>
