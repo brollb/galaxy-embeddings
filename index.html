@@ -9,21 +9,53 @@
     <body>
         <div id="graph"></div>
         <img id="preview" title="Click to view in navigator!"/>
+        <div id="subtitle" ></div>
+        <select id="graphPicker"></select>
         <script type="text/javascript" src="./js/plotly.min.js"></script>
         <script type="text/javascript" src="./data/index.js"></script>
         <script charset="utf-8">
             const container = document.getElementById('graph');
             const img = document.getElementById('preview');
-            Object.assign(PlotData.redshift.layout, getLayout(container));
-            Plotly.newPlot(container, PlotData.redshift);
+            const subtitle = document.getElementById('subtitle');
+            const picker = document.getElementById('graphPicker');
+
+            Object.keys(PlotData).forEach(category => {
+                const opt = document.createElement('option');
+                opt.innerText = category;
+                picker.appendChild(opt);
+            });
+            picker.onchange = event => showGraph(picker.value);
+
+            showGraph(picker.value, false);
             container.on('plotly_click', data => {
                 const [point] = data.points;
-                const [ra, dec] = DataLocations[point.pointNumber];
+                const metadata = PointMetadata[point.pointNumber];
+                const {ra, dec} = metadata;
                 const url = getImageURL(ra, dec, 300, 300);
                 img.setAttribute('style', 'display:inline');
                 img.setAttribute('src', url);
                 img.onclick = () => window.open(getNaviURL(ra, dec), '_blank');
+                subtitle.innerText = Object.entries(metadata)
+                    .map(entry => `${entry[0]}: ${entry[1]}`)
+                    .join('\n');
             });
+
+            function showGraph(category, restoreView=true) {
+                let layout;
+                if (restoreView) {
+                    const scene = container._fullLayout.scene._scene;
+                    layout = {};
+                    scene.saveLayout(layout);
+                }
+
+                Object.assign(PlotData[category].layout, getLayout(container));
+                Plotly.newPlot(container, PlotData[category]);
+
+                if (restoreView) {
+                    const scene = container._fullLayout.scene._scene;
+                    scene.setViewport(layout.scene);
+                }
+            }
 
             function getImageURL(ra, dec, w, h, scale=0.2) {
                 return `https://skyserver.sdss.org/dr14/SkyServerWS/ImgCutout/getjpeg?ra=${ra}&dec=${dec}&width=${w}&height=${h}&scale=${scale}`;
