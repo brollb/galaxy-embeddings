@@ -27,18 +27,6 @@
             picker.onchange = event => showGraph(picker.value);
 
             showGraph(picker.value, false);
-            container.on('plotly_click', data => {
-                const [point] = data.points;
-                const metadata = PointMetadata[point.pointNumber];
-                const {ra, dec} = metadata;
-                const url = getImageURL(ra, dec, 300, 300);
-                img.setAttribute('style', 'display:inline');
-                img.setAttribute('src', url);
-                img.onclick = () => window.open(getNaviURL(ra, dec), '_blank');
-                subtitle.innerText = Object.entries(metadata)
-                    .map(entry => `${entry[0]}: ${entry[1]}`)
-                    .join('\n');
-            });
 
             function showGraph(category, restoreView=true) {
                 let layout;
@@ -50,6 +38,18 @@
 
                 Object.assign(PlotData[category].layout, getLayout(container));
                 Plotly.newPlot(container, PlotData[category]);
+                container.on('plotly_click', data => {
+                    const [point] = data.points;
+                    const metadata = PointMetadata[point.pointNumber];
+                    const {ra, dec} = metadata;
+                    const url = getImageURL(ra, dec, 300, 300);
+                    img.setAttribute('style', 'display:inline');
+                    img.setAttribute('src', url);
+                    img.onclick = () => window.open(getNaviURL(ra, dec), '_blank');
+                    subtitle.innerText = Object.entries(metadata)
+                        .map(entry => `${entry[0]}: ${entry[1]}`)
+                        .join('\n');
+                });
 
                 if (restoreView) {
                     const scene = container._fullLayout.scene._scene;
