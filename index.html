@@ -57,7 +57,7 @@
                 }
             }
 
-            function getImageURL(ra, dec, w, h, scale=0.2) {
+            function getImageURL(ra, dec, w, h, scale=0.075) {
                 return `https://skyserver.sdss.org/dr14/SkyServerWS/ImgCutout/getjpeg?ra=${ra}&dec=${dec}&width=${w}&height=${h}&scale=${scale}`;
             }
 
