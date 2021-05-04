@@ -1,7 +1,7 @@
 import json
 import numpy as np
 labels = np.load('./sdss-labels-10k.npz')
-fields = ['ra', 'dec', 'z', 'zphot', 'dzphot', 'spectrotype', 'bptclass', 'dust1_mean', 'dust2_mean', 'logMass_median']
+fields = ['ra', 'dec', 'z', 'zphot', 'dzphot', 'spectrotype', 'bptclass', 'dust1_mean', 'dust2_mean', 'logMass_median', 'targettype']
 field_idx = [ (name, idx) for (idx, name) in enumerate(labels.dtype.names) if name in fields]
 
 def obj_from_list(l, key_idx):
